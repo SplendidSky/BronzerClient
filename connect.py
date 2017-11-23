@@ -29,3 +29,4 @@ class Connect(metaclass=Singleton):
             else:
                 break
         data = ''.join(buffer)
+        return data
