@@ -21,14 +21,9 @@ class Connect(metaclass=Singleton):
         self.socket.close()
 
     def retriveMsg(self):
-        buffer = []
-        d = self.socket.recv(1024)
-        while d:
-            buffer.append(bytes.decode(d))
-            d = self.socket.recv(1024)
-        data = ''.join(buffer)
-        return data
+        data = self.socket.recv(40960)
+        return bytes.decode(data)
 
     def sendCmd(self, cmd):
-        self.socket.send(str.encode(cmd))
+        self.socket.sendall(str.encode(cmd))
         return self.retriveMsg()
