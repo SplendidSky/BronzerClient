@@ -24,4 +24,4 @@ class ArgsParser(metaclass=Singleton):
 
     def parse(self, args):
         # print("parse " + args)
-        return self.parser.parse_args(args
+        return self.parser.parse_args(args)
