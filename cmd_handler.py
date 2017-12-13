@@ -4,40 +4,60 @@ from connect import Connect
 
 class Handler():
     help_msg = "help message"
+    local_action = ["set", "start", "startservice", "stopservice", "broadcast"]
+    remote_action = ["list", "scan"]
     package_name = ""
 
     def handle(self, cmd):
         rtn_msg = "Handle cmd failed."
-        if cmd == "help":
-            rtn_msg = self.help_msg
-        elif cmd == "list":
-            connect = Connect()
-            rtn_msg = connect.sendCmd("list")
-        else:
+        tokens = str.split(cmd)
+        action = tokens[0]
+
+        if action in self.remote_action:
+            rtn_msg = self.handle_remote_cmd(cmd)
+        elif action in self.local_action:
             rtn_msg = self.handle_local_cmd(cmd)
+        else:
+            rtn_msg = self.help_msg
 
         return rtn_msg
 
+    def handle_remote_cmd(self, cmd):
+        tokens = str.split(cmd)
+        action = tokens[0]
+        rtn_msg = "Handle remote cmd failed."
+        print("remote action " + action)
+
+        connect = Connect()
     
+        if action == "list":
+            rtn_msg = connect.sendCmd(action)
+        elif action == "scan":
+            if self.package_name.strip():
+                rtn_msg = connect.sendCmd(action + " " + self.package_name)
+        
+        return rtn_msg
+
+
     def handle_local_cmd(self, cmd):
         # print("handle_cmd")
-        cmds = str.split(cmd)
-        action = cmds[0]
-        print("action: "+action)
+        tokens = str.split(cmd)
+        action = tokens[0]
+        print("local action: " + action)
         parser = args_parser.ArgsParser()
 
         if action == "set":
-            self.package_name = cmds[1]
+            self.package_name = tokens[1]
 
         if action == "start" or action == "startservice" or action == "stopservice" or action == "broadcast":
             command = ""
             if action != "broadcast":
-                component_name = cmds[1]
+                component_name = tokens[1]
                 command += "adb shell am " + action + self.package_name + "/" + self.package_name + "." + component_name
             else:
                 command += "adb shell am broadcast"
 
-            parse_result = parser.parse(cmds[2:])
+            parse_result = parser.parse(tokens[2:])
             if parse_result.debug == True:
                 command += " -D"
             if parse_result.action is not None:
@@ -62,6 +82,3 @@ class Handler():
             print(command)
             # os.system(command)
             
-        
-
-        # print(results)
