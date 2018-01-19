@@ -2,12 +2,54 @@ import args_parser
 import os
 from connect import Connect
 
+"""Command handler
+
+A handler handles most of commands.
+
+"""
 class Handler():
-    help_msg = "help message"
+    help_msg = '''Usage: ACTION [OPTIONS] [COMPONENT]
+    ACTION:
+        set: \t set packagename
+        start: \t start an activity
+        startservice: \t start a service
+        stopservice: \t stop a service
+        broadcast: \t send a broadcast
+
+    OPTIONS:
+        -D --debug: \t enable debug switch
+        -a --action ACTION: \t add an action
+        -d --data-uri URI: \t set a data-uri
+        -c --category CATEGORY: \t add a category
+        -e --extra TYPE VALUE: \t add an extra value
+        -eb --extra-bool VALUE: \t add an extra boolean value
+        -ei --extra-int VALUE: \t add an extra int value
+        -el --extra-long VALUE: \t add an extra long value
+        -ef --extra-float VALUE: \t add an extra float value
+        -eu --extra-uri VALUE: \t add an extra uri value
+        -es --extra-string VALUE: \t add an extra string value
+
+    COMPONENT:
+        an android component name
+
+    '''
+
+
+
     local_action = ["set", "start", "startservice", "stopservice", "broadcast"]
     remote_action = ["list", "scan"]
     package_name = ""
 
+
+    """Handle a command
+    
+    Args:
+        cmd: A command.
+
+    Returns:
+        A message after command executing
+
+    """
     def handle(self, cmd):
         rtn_msg = "Handle cmd failed."
         tokens = str.split(cmd)
@@ -46,10 +88,11 @@ class Handler():
         print("local action: " + action)
         parser = args_parser.ArgsParser()
 
+
         if action == "set":
             self.package_name = tokens[1]
 
-        if action == "start" or action == "startservice" or action == "stopservice" or action == "broadcast":
+        elif action == "start" or action == "startservice" or action == "stopservice" or action == "broadcast":
             command = ""
             if action != "broadcast":
                 component_name = tokens[1]
@@ -81,4 +124,8 @@ class Handler():
 
             print(command)
             # os.system(command)
+
+        else:
+            print(self.help_msg)
+
             

@@ -4,8 +4,15 @@ import os
 
 # from cmd_handler import Handler
 
-class Shell():
+class Shell(Object):
+    """Bronzer shell
 
+    Use this shell to interact to android
+
+    """
+
+    """Enter interactive environment
+    """
     def run(self):
         print("Welcome to Bronzer!")
         connect = Connect()
