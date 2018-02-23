@@ -1,4 +1,4 @@
-import args_parser
+import opts_parser
 import os
 from connect import Connect
 
@@ -8,26 +8,31 @@ A handler handles most of commands.
 
 """
 class Handler():
-    help_msg = '''Usage: ACTION [OPTIONS] [COMPONENT]
+    help_msg = '''
+    Usage: ACTION [OPTIONS] [COMPONENT]
     ACTION:
-        set: \t set packagename
-        start: \t start an activity
-        startservice: \t start a service
-        stopservice: \t stop a service
-        broadcast: \t send a broadcast
+        list:             list all packages
+        attacksurface:    scan packages 
+        set:              set packagename
+        start:            start an activity
+        startservice:     start a service
+        stopservice:      stop a service
+        broadcast:        send a broadcast
+        exit:             exit Bronzer
+        
 
     OPTIONS:
-        -D --debug: \t enable debug switch
-        -a --action ACTION: \t add an action
-        -d --data-uri URI: \t set a data-uri
-        -c --category CATEGORY: \t add a category
-        -e --extra TYPE VALUE: \t add an extra value
-        -eb --extra-bool VALUE: \t add an extra boolean value
-        -ei --extra-int VALUE: \t add an extra int value
-        -el --extra-long VALUE: \t add an extra long value
-        -ef --extra-float VALUE: \t add an extra float value
-        -eu --extra-uri VALUE: \t add an extra uri value
-        -es --extra-string VALUE: \t add an extra string value
+        -D --debug:                  enable debug switch
+        -a --action ACTION:          add an action
+        -d --data-uri URI:           set a data-uri
+        -c --category CATEGORY:      add a category
+        -e --extra TYPE VALUE:       add an extra value
+        -eb --extra-bool VALUE:      add an extra boolean value
+        -ei --extra-int VALUE:       add an extra int value
+        -el --extra-long VALUE:      add an extra long value
+        -ef --extra-float VALUE:     add an extra float value
+        -eu --extra-uri VALUE:       add an extra uri value
+        -es --extra-string VALUE:    add an extra string value
 
     COMPONENT:
         an android component name
@@ -37,7 +42,7 @@ class Handler():
 
 
     local_action = ["set", "start", "startservice", "stopservice", "broadcast"]
-    remote_action = ["list", "scan"]
+    remote_action = ["list", "attacksurface"]
     package_name = ""
 
 
@@ -86,7 +91,7 @@ class Handler():
         tokens = str.split(cmd)
         action = tokens[0]
         print("local action: " + action)
-        parser = args_parser.ArgsParser()
+        parser = opts_parser.OptsParser()
 
 
         if action == "set":

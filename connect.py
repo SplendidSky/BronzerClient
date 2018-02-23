@@ -10,17 +10,41 @@ class Connect(metaclass=Singleton):
     """
     
     def __init__(self):
-        self.CMD_START_SERVICE = 'adb shell am broadcast -a CONNECT_SERVICE_START'
-        self.CMD_STOP_SERVICE = 'adb shell am broadcast -a CONNECT_SERVICE_STOP'
-        self.CMD_PORT_FORWARD = 'adb forward tcp:15831 tcp:15831'
+        self.port = 15831
+        self.CMD_EXTRA_OPTS = ''
+
+        self.CMD_START_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_START '.format(extra=self.CMD_EXTRA_OPTS)
+        self.CMD_STOP_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_STOP'.format(extra=self.CMD_EXTRA_OPTS)
+        self.CMD_PORT_FORWARD = 'adb {extra} forward tcp:{port} tcp:{port}'
+        self.CMD_LIST_DEVICES = 'adb devices'
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        
 
+    def updateCmd(self):
+        self.CMD_START_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_START '.format(extra=self.CMD_EXTRA_OPTS)
+        self.CMD_STOP_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_STOP'.format(extra=self.CMD_EXTRA_OPTS)
+        self.CMD_PORT_FORWARD = 'adb {extra} forward tcp:{port} tcp:{port}'
 
     def startConnect(self):
-        os.system(self.CMD_START_SERVICE)
-        os.system(self.CMD_PORT_FORWARD)
-        self.socket.connect(('127.0.0.1', 15831))
+        while os.system(self.CMD_START_SERVICE) != 0:
+            os.system(self.CMD_LIST_DEVICES)
+            print('''Use d/e/s to specify a device:
+d                            - directs command to the only connected USB device
+e                            - directs command to the only running emulator
+s <specific device>          - directs command to the device or emulator with the given
+''')
+            opts=input("Bronzer-SpecifyDevice>> ")
+            self.CMD_EXTRA_OPTS = '-' + opts
+            self.updateCmd()
+            print(self.CMD_START_SERVICE)
+
+
+        while os.system(self.CMD_PORT_FORWARD.format(port=self.port)) != 0:
+            print("Current port {} is occupied, choose another port".format())
+            self.port=input("Bronzer-ChoosePort>> ")
+            self.updateCmd()
+        
+        self.socket.connect(('127.0.0.1', self.port))
 
     def stopConnect(self):
         os.system(self.CMD_STOP_SERVICE)

@@ -4,7 +4,7 @@ import os
 
 # from cmd_handler import Handler
 
-class Shell(Object):
+class Shell(object):
     """Bronzer shell
 
     Use this shell to interact to android
@@ -14,7 +14,7 @@ class Shell(Object):
     """Enter interactive environment
     """
     def run(self):
-        print("Welcome to Bronzer!")
+        print("Welcome to Bronzer")
         connect = Connect()
         connect.startConnect()
         welcome_msg = connect.retriveMsg()
@@ -22,7 +22,7 @@ class Shell(Object):
         handler = Handler()
 
         while(True):
-            cmd = input("Bronzer>>")
+            cmd = input("Bronzer>> ")
             if not cmd.strip():
                 continue
             if cmd.strip() == "exit":
