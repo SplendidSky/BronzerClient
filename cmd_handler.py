@@ -12,8 +12,10 @@ class Handler():
     Usage: ACTION [OPTIONS] [COMPONENT]
     ACTION:
         list:             list all packages
-        attacksurface:    scan packages 
         set:              set packagename
+
+        THE FOLLOWING ACTION NEED SET UP packagename FIRST
+        attacksurface:    get an app's attack surface
         start:            start an activity
         startservice:     start a service
         stopservice:      stop a service
@@ -27,12 +29,12 @@ class Handler():
         -d --data-uri URI:           set a data-uri
         -c --category CATEGORY:      add a category
         -e --extra TYPE VALUE:       add an extra value
-        -eb --extra-bool VALUE:      add an extra boolean value
-        -ei --extra-int VALUE:       add an extra int value
-        -el --extra-long VALUE:      add an extra long value
-        -ef --extra-float VALUE:     add an extra float value
-        -eu --extra-uri VALUE:       add an extra uri value
-        -es --extra-string VALUE:    add an extra string value
+        --eb --extra-bool VALUE:      add an extra boolean value
+        --ei --extra-int VALUE:       add an extra int value
+        --el --extra-long VALUE:      add an extra long value
+        --ef --extra-float VALUE:     add an extra float value
+        --eu --extra-uri VALUE:       add an extra uri value
+        --es --extra-string VALUE:    add an extra string value
 
     COMPONENT:
         an android component name
@@ -79,9 +81,11 @@ class Handler():
     
         if action == "list":
             rtn_msg = connect.sendCmd(action)
-        elif action == "scan":
+        elif action == "attacksurface":
             if self.package_name.strip():
                 rtn_msg = connect.sendCmd(action + " " + self.package_name)
+            else:
+                rtn_msg = "Please use set action to set a package"
         
         return rtn_msg
 

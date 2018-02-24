@@ -15,15 +15,16 @@ class Connect(metaclass=Singleton):
 
         self.CMD_START_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_START '.format(extra=self.CMD_EXTRA_OPTS)
         self.CMD_STOP_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_STOP'.format(extra=self.CMD_EXTRA_OPTS)
-        self.CMD_PORT_FORWARD = 'adb {extra} forward tcp:{port} tcp:{port}'
+        self.CMD_PORT_FORWARD = 'adb {extra} forward tcp:{port} tcp:{port}'.format(extra=self.CMD_EXTRA_OPTS, port=self.port)
         self.CMD_LIST_DEVICES = 'adb devices'
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        
 
     def updateCmd(self):
+
         self.CMD_START_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_START '.format(extra=self.CMD_EXTRA_OPTS)
         self.CMD_STOP_SERVICE = 'adb {extra} shell am broadcast -a CONNECT_SERVICE_STOP'.format(extra=self.CMD_EXTRA_OPTS)
-        self.CMD_PORT_FORWARD = 'adb {extra} forward tcp:{port} tcp:{port}'
+        self.CMD_PORT_FORWARD = 'adb {extra} forward tcp:{port} tcp:{port}'.format(extra=self.CMD_EXTRA_OPTS, port=self.port)
 
     def startConnect(self):
         while os.system(self.CMD_START_SERVICE) != 0:
@@ -36,7 +37,7 @@ s <specific device>          - directs command to the device or emulator with th
             opts=input("Bronzer-SpecifyDevice>> ")
             self.CMD_EXTRA_OPTS = '-' + opts
             self.updateCmd()
-            print(self.CMD_START_SERVICE)
+            # print(self.CMD_START_SERVICE)
 
 
         while os.system(self.CMD_PORT_FORWARD.format(port=self.port)) != 0:
