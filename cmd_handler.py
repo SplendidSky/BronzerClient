@@ -11,6 +11,7 @@ class Handler():
     help_msg = '''
     Usage: ACTION [OPTIONS] [COMPONENT]
     ACTION:
+        assess:           assess security
         list:             list all packages
         set:              set packagename
 
@@ -24,11 +25,11 @@ class Handler():
         
 
     OPTIONS:
-        -D --debug:                  enable debug switch
-        -a --action ACTION:          add an action
-        -d --data-uri URI:           set a data-uri
-        -c --category CATEGORY:      add a category
-        -e --extra TYPE VALUE:       add an extra value
+        -D --debug:                   enable debug switch
+        -a --action ACTION:           add an action
+        -d --data-uri URI:            set a data-uri
+        -c --category CATEGORY:       add a category
+        -e --extra TYPE VALUE:        add an extra value
         --eb --extra-bool VALUE:      add an extra boolean value
         --ei --extra-int VALUE:       add an extra int value
         --el --extra-long VALUE:      add an extra long value
@@ -44,7 +45,7 @@ class Handler():
 
 
     local_action = ["set", "start", "startservice", "stopservice", "broadcast"]
-    remote_action = ["list", "attacksurface"]
+    remote_action = ["assess", "list", "attacksurface"]
     package_name = ""
 
 
@@ -86,6 +87,43 @@ class Handler():
                 rtn_msg = connect.sendCmd(action + " " + self.package_name)
             else:
                 rtn_msg = "Please use set action to set a package"
+        elif action == "assess":
+            
+            _packages = connect.sendCmd("list")
+            packages = str.split(_packages)
+
+            for package in packages:
+                print(package)
+                _exported_activities = connect.sendCmd("_exported_activities " + package)
+                _exported_services = connect.sendCmd("_exported_services " + package)
+                exported_activities = str.split(_exported_activities)
+                exported_services = str.split(_exported_services)
+                # exported_activities[0] is a placeholder
+                for exported_activity in exported_activities[1:]:
+                    command =  "adb shell am start -n " + package + "/" + exported_activity
+                    print(command)
+                    output = os.popen(command)
+                    output = output.readlines()
+                    print(output)
+                    if len(output) > 2:
+                        continue
+                    print(package,"/", exported_activity, "can be called in outer environment.\n")
+                    # break
+                    # print("OS: ", os.system(command))
+
+                # exported_services[0] is a placeholder
+                for exported_service in exported_services[1:]:
+                    command = "adb shell am startservice -n " + package + "/" + exported_service
+                    output = os.popen(command)
+                    output = output.readlines()
+                    print(output)
+                    if len(output) > 2:
+                        continue
+                    print(package,"/", exported_service, "can be manipulated in outer environment.\n")
+                    # break
+                    # print("OS: ", os.system(command))
+
+
         
         return rtn_msg
 
@@ -101,38 +139,40 @@ class Handler():
         if action == "set":
             self.package_name = tokens[1]
 
+
         elif action == "start" or action == "startservice" or action == "stopservice" or action == "broadcast":
             command = ""
             if action != "broadcast":
                 component_name = tokens[1]
-                command += "adb shell am " + action + self.package_name + "/" + self.package_name + "." + component_name
+                command += "adb shell am " + action + " -n " + self.package_name + "/" + component_name
             else:
                 command += "adb shell am broadcast"
 
-            parse_result = parser.parse(tokens[2:])
-            if parse_result.debug == True:
+            (options,args) = parser.parse(tokens[2:])
+            print(options)
+            if options.debug is not None:
                 command += " -D"
-            if parse_result.action is not None:
-                command += " -a " + parse_result.action
-            if parse_result.data_uri is not None:
-                command += " -d " + parse_result.data_uri
-            if parse_result.category is not None:
-                command += " -c " + parse_result.category
-            if parse_result.extra_int is not None:
-                command += " --ei " + parse_result.extra_int
-            if parse_result.extra_bool is not None:
-                command += " --ez " + parse_result.extra_bool
-            if parse_result.extra_long is not None:
-                command += " --el " + parse_result.extra_long
-            if parse_result.extra_float is not None:
-                command += " --ef " + parse_result.extra_float
-            if parse_result.extra_uri is not None:
-                command += " --eu " + parse_result.extra_uri
-            if parse_result.extra_string is not None:
-                command += " --es " + parse_result.extra_string
+            if options.action is not None:
+                command += " -a " + options.action
+            if options.data_uri is not None:
+                command += " -d " + options.data_uri
+            if options.category is not None:
+                command += " -c " + options.category
+            if options.extra_int is not None:
+                command += " --ei " + options.extra_int
+            if options.extra_bool is not None:
+                command += " --ez " + options.extra_bool
+            if options.extra_long is not None:
+                command += " --el " + options.extra_long
+            if options.extra_float is not None:
+                command += " --ef " + options.extra_float
+            if options.extra_uri is not None:
+                command += " --eu " + options.extra_uri
+            if options.extra_string is not None:
+                command += " --es " + options.extra_string
 
             print(command)
-            # os.system(command)
+            os.system(command)
 
         else:
             print(self.help_msg)

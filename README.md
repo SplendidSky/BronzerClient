@@ -7,6 +7,7 @@ BronzerClient is written by Python and runs on a PC.
 Usage: ACTION [OPTIONS] [COMPONENT]
 
 ACTION:
+	assess:           assess security
     list:             list all packages
     set:              set packagename
 
