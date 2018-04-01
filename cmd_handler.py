@@ -89,11 +89,15 @@ class Handler():
                 rtn_msg = "Please use set action to set a package"
         elif action == "assess":
             
+            print("Phase 1:")
+            print(connect.sendCmd("assess"))
+
+            print("Phase 2:")
             _packages = connect.sendCmd("list")
             packages = str.split(_packages)
 
             for package in packages:
-                print(package)
+                # print(package)
                 _exported_activities = connect.sendCmd("_exported_activities " + package)
                 _exported_services = connect.sendCmd("_exported_services " + package)
                 exported_activities = str.split(_exported_activities)
@@ -101,13 +105,14 @@ class Handler():
                 # exported_activities[0] is a placeholder
                 for exported_activity in exported_activities[1:]:
                     command =  "adb shell am start -n " + package + "/" + exported_activity
-                    print(command)
+                    # print(command)
                     output = os.popen(command)
                     output = output.readlines()
-                    print(output)
+                    # print(output)
                     if len(output) > 2:
                         continue
-                    print(package,"/", exported_activity, "can be called in outer environment.\n")
+                    print(package,"/", exported_activity, "can be called in outer environment.")
+                    
                     # break
                     # print("OS: ", os.system(command))
 
@@ -116,10 +121,10 @@ class Handler():
                     command = "adb shell am startservice -n " + package + "/" + exported_service
                     output = os.popen(command)
                     output = output.readlines()
-                    print(output)
+                    # print(output)
                     if len(output) > 2:
                         continue
-                    print(package,"/", exported_service, "can be manipulated in outer environment.\n")
+                    print(package,"/", exported_service, "can be manipulated in outer environment.")
                     # break
                     # print("OS: ", os.system(command))
 
@@ -141,10 +146,13 @@ class Handler():
 
 
         elif action == "start" or action == "startservice" or action == "stopservice" or action == "broadcast":
+            if self.package_name.strip() == "":
+                print("Use SET to set packagename first!")
+                return
             command = ""
             if action != "broadcast":
                 component_name = tokens[1]
-                command += "adb shell am " + action + " -n " + self.package_name + "/" + component_name
+                command += "adb shell am " + action + " -n " + self.package_name + "/" + self.package_name + '.' + component_name
             else:
                 command += "adb shell am broadcast"
 
@@ -158,18 +166,20 @@ class Handler():
                 command += " -d " + options.data_uri
             if options.category is not None:
                 command += " -c " + options.category
+            if options.extra is not None:
+                command += " -e " + options.extra[0] + " " + options.extra[1] + " " + options.extra[2]
             if options.extra_int is not None:
-                command += " --ei " + options.extra_int
+                command += " --ei " + options.extra_int[0] + " " + options.extra_int[1]
             if options.extra_bool is not None:
-                command += " --ez " + options.extra_bool
+                command += " --ez " + options.extra_bool[0] + " " + options.extra_bool[1]
             if options.extra_long is not None:
-                command += " --el " + options.extra_long
+                command += " --el " + options.extra_long[0] + " " + options.extra_long[1]
             if options.extra_float is not None:
-                command += " --ef " + options.extra_float
+                command += " --ef " + options.extra_float[0] + " " + options.extra_float[1]
             if options.extra_uri is not None:
-                command += " --eu " + options.extra_uri
+                command += " --eu " + options.extra_uri[0] + " " + options.extra_uri[1]
             if options.extra_string is not None:
-                command += " --es " + options.extra_string
+                command += " --es " + options.extra_string[0] + " " + options.extra_string[1]
 
             print(command)
             os.system(command)
